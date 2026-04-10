@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Reserve</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Replace 'test' with your actual Sandbox Client ID from PayPal -->
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-m-md">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Reservation Form</h2>
+        
+        <form id="resForm" class="space-y-4">
+            <input type="text" id="first_name" placeholder="First Name" required class="w-full p-2 border rounded">
+            <input type="text" id="last_name" placeholder="Surname" required class="w-full p-2 border rounded">
+            <input type="email" id="email" placeholder="Email Address" required class="w-full p-2 border rounded">
+            
+            <div id="paypal-button-container" class="mt-6"></div>
+        </form>
+    </div>
+
+    <script>
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                // This starts the PayPal flow
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: { value: '25.00' } // Set your price here
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                // This triggers when payment is finished on PayPal side
+                return actions.order.capture().then(function(details) {
+                    const payload = {
+                        first_name: document.getElementById('first_name').value,
+                        last_name: document.getElementById('last_name').value,
+                        email: document.getElementById('email').value,
+                        paypal_order_id: data.orderID
+                    };
+
+                    // Send data to your FastAPI backend
+                    fetch('/verify-payment', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload)
+                    }).then(res => {
+                        if(res.ok) alert('Success! Check your email.');
+                    });
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>
+</body>
+</html>
+
