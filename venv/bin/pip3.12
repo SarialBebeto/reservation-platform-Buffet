@@ -1,4 +1,4 @@
-#!/home/devops/reservation_platform/venv/bin/python3
+#!/home/devops/reservation-platform-Buffet/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
