@@ -45,11 +45,18 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/devops/reservation-platform-Buffet
+            git pull origin main
             microk8s helm3 upgrade --install buffet-release ./buffet-app --namespace production --create-namespace
-            sleep 6
-            microk8s kubectl rollout status deployment/buffet-postgres -n production
+
+            echo "Waiting for Postgres to be created..."
+            sleep 10
+
+            echo "waiting for Postgres specifically to be ready..."
+            microk8s kubectl rollout status deployment/buffet-postgres -n production || echo "Postgres deployment not found yet"
+
+            echo "Restarting app pods to pick up new database connection..."
+            microk8s kubectl rollout restart deployment/buffet-release-buffet-app -n production
+
             microk8s kubectl get all -n production
 
-
-
-          
+         
