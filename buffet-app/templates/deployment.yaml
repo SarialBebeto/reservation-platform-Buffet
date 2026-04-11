@@ -42,8 +42,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8080  # FastAPI internal port
               protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ .Values.existingSecret }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
