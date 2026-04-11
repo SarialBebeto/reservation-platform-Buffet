@@ -61,10 +61,15 @@ spec:
           {{- end }}
           {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
+             - name: db-storage
+             mountPath: /app/data
+             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- with .Values.volumes }}
       volumes:
+          - name: db-storage
+            persistentVolumeClaim:
+              claimName: buffet-db-pvc
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}

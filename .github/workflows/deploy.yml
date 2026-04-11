@@ -1,11 +1,11 @@
-name: CI/CD Pipeline
+name: Deploy Buffet App
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +24,32 @@ jobs:
           push: true
           tags: sarialbebeto/buffet-app:latest
       
-      - name: Deploy to VM via SSH
-        uses: appleboy/ssh-action@master
+      # - name: Deploy to VM via SSH
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.VM_IP }}
+      #     username: devops
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     script: |
+      #       microk8s kubectl rollout restart deployment/buffet-deployment -n production
+
+  deploy-to-k8s:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VM_IP }}
           username: devops
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            microk8s kubectl rollout restart deployment/buffet-deployment -n production
+            cd /home/devops/reservation-platform-Buffet
+            microk8s helm3 upgrade --install buffet-release ./buffet-app --namespace production --create-namespace
+            sleep 6
+            microk8s kubectl rollout status deployment/buffet-postgres -n production
+            microk8s kubectl get all -n production
+
+
 
           
