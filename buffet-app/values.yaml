@@ -124,3 +124,14 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  user: "buffet-user"
+  dbName: "buffet-db-prod"
+  host: "buffet-postgres-service"
+  port: 5432
