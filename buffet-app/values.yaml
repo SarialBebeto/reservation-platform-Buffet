@@ -71,7 +71,7 @@ ingress:
     service:
       name: buffet-release-buffet-app
       port:
-        number: {{ .Values.service.port }}
+        number: 80
   # hosts:
   #   - host: chart-example.local
   #     paths:
