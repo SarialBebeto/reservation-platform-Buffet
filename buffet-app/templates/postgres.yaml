@@ -36,6 +36,8 @@ spec:
                 secretKeyRef:
                   name: buffet-secrets
                   key: DB_PASSWORD
+            - name: POSTGRES_DB
+              value: "buffet_prod"
           ports:
             - containerPort: 5432
           volumeMounts:
