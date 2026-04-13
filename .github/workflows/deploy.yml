@@ -43,6 +43,7 @@ jobs:
           host: ${{ secrets.VM_IP }}
           username: devops
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 15m
           script: |
             cd /home/devops/reservation-platform-Buffet
             git pull origin main
