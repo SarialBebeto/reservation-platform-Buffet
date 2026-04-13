@@ -49,6 +49,12 @@ jobs:
             git pull origin main
             microk8s helm3 upgrade --install buffet-release ./buffet-app --namespace production --create-namespace
 
+            echo "Deleting unnecessary pods inside the cluster to free up resources..."
+            microk8s kubectl delete deployment -n production -l app.kubernetes.io/instance=buffet-release 
+
+            echo "Now run  Helm upgrade to deploy exactly what is in the files"
+            microk8s helm3 upgrade --install buffet-release ./buffet-app --namespace production
+
             echo "Waiting for Postgres to be created..."
             sleep 10
 
