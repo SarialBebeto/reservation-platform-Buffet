@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
+from fastapi.staticfiles import StaticFiles
 
 
 # Load environment variables
@@ -19,6 +20,7 @@ load_dotenv()
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
@@ -73,17 +75,6 @@ async def verify_payment( payload: dict = Body(...), db: Session = Depends(datab
             paid=True,
             paypal_order_id=order_id
         )
-
-    # # 2. Update the reservation in the database
-    # new_res = models.Reservation(
-    #     first_name=payload.get("first_name"),
-    #     last_name=payload.get("last_name"),
-    #     date=payload.get("date"),
-    #     time=payload.get("time"),
-    #     email=payload.get("email"),
-    #     paid=True,
-    #     paypal_order_id=order_id
-    # )
         db.add(new_res)
         db.commit()
 
