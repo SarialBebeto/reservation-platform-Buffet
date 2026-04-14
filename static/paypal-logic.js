@@ -32,14 +32,21 @@ paypal.Buttons({
 
     onApprove: function(data, actions) {
         return actions.order.capture().then(function(details){
+
+            // Generate automatic date and time
+            const now = new Date();
+            const autoDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+            const autoTime = now.toTimeString().split(' ')[0].slice(0,5); // HH:MM
+
+
             const payload = {
                 first_name: document.getElementById('first_name').value,
                 last_name: document.getElementById('last_name').value,
                 email: document.getElementById('email').value,
                 package_type: document.getElementById('package_select').value,
                 paypal_order_id: data.orderID,
-                date: document.getElementById('res_date').value, 
-                time: document.getElementById('res_time').value 
+                date: autoDate, 
+                time: autoTime
             };
 
             fetch('/verify-payment', {
