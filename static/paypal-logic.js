@@ -38,8 +38,8 @@ paypal.Buttons({
                 email: document.getElementById('email').value,
                 package_type: document.getElementById('package_select').value,
                 paypal_order_id: data.orderID,
-                date: "2024-12-31", 
-                time: "19:00" 
+                date: document.getElementById('res_date').value, 
+                time: document.getElementById('res_time').value 
             };
 
             fetch('/verify-payment', {
