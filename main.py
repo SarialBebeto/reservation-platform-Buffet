@@ -86,9 +86,9 @@ async def verify_payment( payload: dict = Body(...), db: Session = Depends(datab
 
  
 
-def send_confirmation_email(email: str, first_name: str, last_name: str):
+async def send_confirmation_email(email: str, last_name: str, package: str):
     # Implement your email sending logic here (e.g., using SMTP or an email service API)
-    print(f"Sending confirmation email to {email} for {first_name} {last_name}")
+    print(f"Hello {last_name}, your reservation for {package} is successful!")
 
 
 app.add_middleware(
