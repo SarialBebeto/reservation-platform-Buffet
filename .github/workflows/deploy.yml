@@ -47,7 +47,6 @@ jobs:
           script: |
             cd /home/devops/reservation-platform-Buffet
             git pull origin main
-            microk8s helm3 upgrade --install buffet-release ./buffet-app --namespace production --create-namespace
 
             echo "Deleting unnecessary pods inside the cluster to free up resources..."
             microk8s kubectl delete deployment -n production -l app.kubernetes.io/instance=buffet-release 
@@ -66,4 +65,5 @@ jobs:
 
             microk8s kubectl get all -n production
 
-         
+# microk8s helm3 upgrade --install buffet-release ./buffet-app --namespace production --create-namespace
+
