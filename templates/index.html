@@ -3,35 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Reserve</title>
+    <title>Buffet Reservation | Quick Reserve</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=AYZhcGR7jb8Lp3_wCyILNA8ZGaZC-vqNJQxxFIZAABqooCY8Qh7iZXbMNSNsz7APbhzdsd4wD8do0yIR&currency=EUR"></script>
-</head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-m-md">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Reservation Form</h2>
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=EUR"></script>
+    <style>
         
-        <form id="resForm" class="space-y-4">
-            <input type="text" id="first_name" placeholder="First Name" required class="w-full p-2 border rounded">
-            <input type="text" id="last_name" placeholder="Surname" required class="w-full p-2 border rounded">
-            <input type="email" id="email" placeholder="Email Address" required class="w-full p-2 border rounded">
-            
-            <div id="paypal-button-container" class="mt-6"></div>
-        </form>
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="main-card" class="bg-white rounded-2xl shadow-xl overflow-hidden max-w-md w-full transition-all">
+        <div class="bg-indigo-600 h-32 flex items-center justify-center">
+            <h1 class="text-white text-3xl font-extrabold tracking-tight">THE BUFFET</h1>
+        </div>
+
+        <div class="p-8">
+            <div id="form-container">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Secure Your Table</h2>
+                <p class="text-gray-500 text-sm mb-6">Reservation fee: <span class="font-bold text-indigo-600">25.00€</span></p>
+                
+                <form id="resForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 uppercase mb-1">First Name</label>
+                        <input type="text" id="first_name" placeholder="John" required 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 uppercase mb-1">Surname</label>
+                        <input type="text" id="last_name" placeholder="Doe" required 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 uppercase mb-1">Email Address</label>
+                        <input type="email" id="email" placeholder="john@example.com" required 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                    </div>
+                    
+                    <div id="paypal-button-container" class="mt-8"></div>
+                </form>
+            </div>
+
+            <div id="success-message" class="hidden text-center py-10 fade-in">
+                <div class="bg-green-100 text-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Payment Received!</h2>
+                <p class="text-gray-600 mt-2 text-sm">Your table is reserved. Please check your email for the confirmation ticket.</p>
+                <button onclick="window.location.reload()" class="mt-6 text-indigo-600 font-medium hover:underline">Make another reservation</button>
+            </div>
+        </div>
     </div>
 
     <script>
         paypal.Buttons({
+            
+            onClick: function(data, actions) {
+                const form = document.getElementById('resForm');
+                if (!form.checkValidity()) {
+                    alert("Please fill out all fields before proceeding to payment.");
+                    return actions.reject();
+                }
+            },
             createOrder: function(data, actions) {
-                // This starts the PayPal flow
                 return actions.order.create({
                     purchase_units: [{
-                        amount: { value: '25.00' } // Set your price here
+                        amount: { value: '25.00' }
                     }]
                 });
             },
             onApprove: function(data, actions) {
-                // This triggers when payment is finished on PayPal side
                 return actions.order.capture().then(function(details) {
                     const payload = {
                         first_name: document.getElementById('first_name').value,
@@ -40,13 +84,16 @@
                         paypal_order_id: data.orderID
                     };
 
-                    // Send data to your FastAPI backend
                     fetch('/verify-payment', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(payload)
                     }).then(res => {
-                        if(res.ok) alert('Success! Check your email.');
+                        if(res.ok) {
+                            
+                            document.getElementById('form-container').classList.add('hidden');
+                            document.getElementById('success-message').classList.remove('hidden');
+                        }
                     });
                 });
             }
