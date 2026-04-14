@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 
 # Load environment variables
@@ -54,9 +55,18 @@ def get_paypal_access_token():
     response = requests.post(url, headers=headers, data=data, auth=(client_id, secret))
     return response.json().get("access_token")
 
+class PaymentPayload(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    date: str
+    time: str
+    paypal_order_id: str
+    package_type: str
+
 @app.post("/verify-payment")
-async def verify_payment( payload: dict = Body(...), db: Session = Depends(database.get_db), background_tasks: BackgroundTasks = None):
-    order_id = payload.get("paypal_order_id")
+async def verify_payment( payload: PaymentPayload, db: Session = Depends(database.get_db), background_tasks: BackgroundTasks = None):
+    order_id = payload.paypal_order_id
     token = get_paypal_access_token()
 
     # Verify order with Paypal
