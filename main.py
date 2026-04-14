@@ -77,11 +77,12 @@ async def verify_payment( payload: PaymentPayload, db: Session = Depends(databas
     if res.get("status") == "COMPLETED":
         # Create the reservation in DB
         new_res = models.Reservation(
-            first_name=payload.get("first_name"),
-            last_name=payload.get("last_name"),
-            date=payload.get("date"),
-            time=payload.get("time"),
-            email=payload.get("email"),
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+            date=payload.date,
+            time=payload.time,
+            email=payload.email,
+            package_type=payload.package_type,
             paid=True,
             paypal_order_id=order_id
         )
@@ -89,7 +90,7 @@ async def verify_payment( payload: PaymentPayload, db: Session = Depends(databas
         db.commit()
 
         # 3. Send confirmation email in the background
-        background_tasks.add_task(send_confirmation_email, payload.get("email"), payload.get("first_name"), payload.get("last_name"))
+        background_tasks.add_task(send_confirmation_email, payload.email, payload.first_name, payload.last_name, payload.package_type)
 
         return {"status": "success"}
     raise HTTPException(status_code=400, detail="Payment verification failed")
@@ -120,11 +121,14 @@ conf = ConnectionConfig(
     USE_CREDENTIALS=True
 )
 
-async def send_confirmation_email(email_to: str, name: str):
+async def send_confirmation_email(email_to: str, name: str, package: str):
+
+    pretty_package = package.replace("_", " ").title()
+
     message = MessageSchema(
         subject="Reservation confirmed! 🎉",
         recipients=[email_to],
-        body=f"Hello {name}, your reservation at the buffet is successful!",
+        body=f"Hello {name}, your reservation  for <strong>{pretty_package}</strong> is successful!",
         subtype=MessageType.html)
     
     fm = FastMail(conf)
