@@ -66,6 +66,7 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: "/"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
   backend:
     service:
       name: buffet-release-buffet-app
