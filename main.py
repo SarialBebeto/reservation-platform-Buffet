@@ -61,8 +61,8 @@ class PaymentPayload(BaseModel):
     email: str
     date: str
     time: str
-    paypal_order_id: str
     package_type: str
+    paypal_order_id: str
 
 @app.post("/verify-payment")
 async def verify_payment( payload: PaymentPayload, db: Session = Depends(database.get_db), background_tasks: BackgroundTasks = None):
