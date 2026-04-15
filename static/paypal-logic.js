@@ -36,7 +36,7 @@ paypal.Buttons({
             // Generate automatic date and time
             const now = new Date();
             const autoDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-            const autoTime = now.toTimeString().split(' ')[0].slice(0,5); // HH:MM
+            const autoTime = now.toTimeString().split(' ')[0].substring(0,5); // HH:MM
 
 
             const payload = {
@@ -48,6 +48,8 @@ paypal.Buttons({
                 date: autoDate, 
                 time: autoTime
             };
+
+            console.log("Sending payload:", payload);
 
             fetch('/verify-payment', {
                 method: 'POST',

@@ -10,7 +10,7 @@ class Reservation(Base):
     date = Column(String, index=True)
     time = Column(String, index=True)
     email = Column(String, index=True)
-    package_type = Column(String, nullable=True)
+    package_type = Column(String)
     paid = Column(Boolean, default=False)
     paypal_order_id = Column(String, unique=True, nullable=True)
 
