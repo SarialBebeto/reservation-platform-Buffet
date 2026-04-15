@@ -63,9 +63,9 @@ def get_paypal_access_token():
             else:
                 print(f"PAYPAL AUTH ERROR: {response.status_code} - {response.text}")
                 return None
-        except Exception as e:
-            print(f"NETWORK ERROR: Could not reach PayPal: {e}")
-            return None
+    except Exception as e:
+        print(f"NETWORK ERROR: Could not reach PayPal: {e}")
+        return None
 
 token = get_paypal_access_token()
 if token:
