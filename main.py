@@ -55,11 +55,17 @@ def get_paypal_access_token():
     data = {"grant_type": "client_credentials"}
 
     response = requests.post(url, headers=headers, data=data, auth=(client_id, secret))
-    if response.status_code != 200:
-        return response.json().get("access_token")
-    else:
-        print(f"DEBUG: Failed to get PayPal token: {response.status_code} - {response.text}")
-        return None
+    try:
+            # We use auth=(client_id, secret) for Basic Auth
+            response = requests.post(url, auth=(client_id, secret), data=data, headers=headers)
+            if response.status_code == 200:
+                return response.json().get("access_token")
+            else:
+                print(f"PAYPAL AUTH ERROR: {response.status_code} - {response.text}")
+                return None
+        except Exception as e:
+            print(f"NETWORK ERROR: Could not reach PayPal: {e}")
+            return None
 
 token = get_paypal_access_token()
 if token:
