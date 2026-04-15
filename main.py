@@ -49,14 +49,23 @@ async def create_reservation(
 def get_paypal_access_token():
     client_id = os.getenv("PAYPAL_CLIENT_ID")
     secret = os.getenv("PAYPAL_CLIENT_SECRET")
+
     url = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
     headers = {"Accept": "application/json", "Accept-Language": "en_US"}
     data = {"grant_type": "client_credentials"}
+
     response = requests.post(url, headers=headers, data=data, auth=(client_id, secret))
-    return response.json().get("access_token")
+    if response.status_code != 200:
+        return response.json().get("access_token")
+    else:
+        print(f"DEBUG: Failed to get PayPal token: {response.status_code} - {response.text}")
+        return None
 
 token = get_paypal_access_token()
-print(f"DEBUG: Token obtained: {token[:10]}...")  # Print the first 10 characters of the token for debugging
+if token:
+    print(f"DEBUG: Token obtained: {token[:10]}...")  # Print the first 10 characters of the token for debugging
+else:
+    print("DEBUG: Failed to obtain PayPal access token.")
 
 class PaymentPayload(BaseModel):
     first_name: str
