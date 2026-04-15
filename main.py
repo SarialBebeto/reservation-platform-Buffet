@@ -55,6 +55,9 @@ def get_paypal_access_token():
     response = requests.post(url, headers=headers, data=data, auth=(client_id, secret))
     return response.json().get("access_token")
 
+token = get_paypal_access_token()
+print(f"DEBUG: Token obtained: {token[:10]}...")  # Print the first 10 characters of the token for debugging
+
 class PaymentPayload(BaseModel):
     first_name: str
     last_name: str
@@ -73,6 +76,7 @@ async def verify_payment( payload: PaymentPayload, db: Session = Depends(databas
     url = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}"    
     headers = {"Authorization": f"Bearer {token}"}
     res = requests.get(url, headers=headers).json()
+    print(f"DEBUG: PayPal response: {res}")  # Print the entire response for debugging
 
     if res.get("status") == "COMPLETED":
         # Create the reservation in DB
@@ -93,7 +97,8 @@ async def verify_payment( payload: PaymentPayload, db: Session = Depends(databas
         background_tasks.add_task(send_confirmation_email, payload.email, payload.first_name, payload.last_name, payload.package_type)
 
         return {"status": "success"}
-    raise HTTPException(status_code=400, detail="Payment verification failed")
+    else:
+        raise HTTPException(status_code=400, detail=f"PayPal status: {res.get('status')} - Full Error: {res}")
 
  
 
