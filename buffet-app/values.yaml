@@ -59,6 +59,15 @@ service:
 
 existingSecret: "buffet-secrets"
 
+adminCredentials:
+  secretName: "admin-credentials"
+  optional: true
+  keys:
+    - name: ADMIN_USERNAME
+      key: ADMIN_USERNAME
+    - name: ADMIN_PASSWORD
+      key: ADMIN_PASSWORD
+
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: true

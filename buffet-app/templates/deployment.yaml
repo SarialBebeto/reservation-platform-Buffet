@@ -47,6 +47,19 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Values.existingSecret }}
+          {{- with .Values.adminCredentials.keys }}
+          env:
+            {{- range . }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.adminCredentials.secretName }}
+                  key: {{ .key }}
+                  {{- if $.Values.adminCredentials.optional }}
+                  optional: true
+                  {{- end }}
+            {{- end }}
+          {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

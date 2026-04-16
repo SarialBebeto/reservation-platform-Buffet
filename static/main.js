@@ -37,6 +37,7 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                             </h4>
                             <p class="text-sm text-gray-600 ml-6 mt-1">
                                 Send to: <strong class="text-indigo-600">My-paypalaccount@email.com</strong>
+                                with Message: <strong> your ${data.transaction_code}</strong>
                             </p>
                         </div>
 
@@ -48,6 +49,7 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                                 <p>Bank: <strong>Your Bank Name</strong></p>
                                 <p>IBAN: <strong>DE00 0000 0000 0000 0000 00</strong></p>
                                 <p>BIC: <strong>ABCDEFGHXXX</strong></p>
+                                <p>Verwendungszweck: <strong> your ${data.transaction_code}</strong></p>
                             </div>
                         </div>
                     </div>
