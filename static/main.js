@@ -1,4 +1,4 @@
-document.getElementById('reservation_form').addEventListener('submit', function(e) {
+document.getElementById('resForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Stop page from reloading
 
     // Change button text so the user knows it's working
@@ -19,25 +19,46 @@ document.getElementById('reservation_form').addEventListener('submit', function(
     .then(data => {
         if(data.status === 'success') {
             // Replace the form with a success message
-            const formContainer = document.getElementById('form-container');
-            formContainer.innerHTML = `
+            const container = document.getElementById('form-container');
+            container.innerHTML = `
                 <div class="text-center p-6 bg-green-50 rounded-lg border border-green-200">
                     <h3 class="text-2xl font-bold text-green-700 mb-2">Reservation Requested!</h3>
                     <p class="text-gray-700 mb-4">Your Transaction Code is:</p>
                     <div class="text-3xl font-mono font-bold text-indigo-600 mb-4 bg-white p-3 rounded border inline-block">
                         ${data.transaction_code}
                     </div>
-                    <p class="text-sm text-gray-600 text-left">
-                        <strong>Next Steps:</strong><br>
-                        1. Please send the payment via PayPal directly to <strong>your.email@example.com</strong> or via Bank Transfer.<br>
-                        2. <strong>Crucial:</strong> Put your Transaction Code in the transfer description.<br>
-                        3. Once we receive the funds, we will email your official ticket.<br>
-                        <em>Reservations without payment are canceled after 48 hours.</em>
-                    </p>
+                    <p class="text-[10px] text-indigo-500 mt-2 italic">Copy this code into your payment description</p>
+                </div>
+
+                <div class="text-left space-y-4">
+                        <div class="border-t pt-4">
+                            <h4 class="font-bold text-gray-800 flex items-center">
+                                <span class="mr-2">🔵</span> Option 1: PayPal (Friends & Family)
+                            </h4>
+                            <p class="text-sm text-gray-600 ml-6 mt-1">
+                                Send to: <strong class="text-indigo-600">My-paypalaccount@email.com</strong>
+                            </p>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <h4 class="font-bold text-gray-800 flex items-center">
+                                <span class="mr-2">🏦</span> Option 2: Bank Transfer (SEPA)
+                            </h4>
+                            <div class="text-sm text-gray-600 ml-6 mt-1 space-y-1">
+                                <p>Bank: <strong>Your Bank Name</strong></p>
+                                <p>IBAN: <strong>DE00 0000 0000 0000 0000 00</strong></p>
+                                <p>BIC: <strong>ABCDEFGHXXX</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t text-[11px] text-gray-400">
+                        Once confirmed, your official ticket will be sent to your email address automatically.
+                    </div>
                 </div>
             `;
         } else {
-            alert("Something went wrong. Please try again.");
+            alert("Error: " + (data.detail || "Something went wrong"));
             submitBtn.innerText = "Request Reservation";
             submitBtn.disabled = false;
         }
