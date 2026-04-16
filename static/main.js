@@ -8,7 +8,7 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
 
     // Collect form data
     const formData = new FormData(this);
-    formData.append('package_type', document.getElementById('package_select').value);
+    // formData.append('package_type', document.getElementById('package_select').value);
 
     // Send data to FastAPI app
     fetch('/reserve', {
