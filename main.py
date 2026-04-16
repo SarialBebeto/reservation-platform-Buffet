@@ -104,20 +104,26 @@ def read_root(request: Request):
 async def create_reservation(
     first_name: str = Form(...),
     last_name: str = Form(...),
-    date: str = Form("TBD"),
-    time: str = Form("TBD"),
+    # date: str = Form("TBD"),
+    # time: str = Form("TBD"),
     email: str = Form(...),
     phone: str = Form(...),
     package_type: str = Form(...),
     background_tasks: BackgroundTasks = None,
     db: Session = Depends(database.get_db)
 ):
+    
+    # Get the current date and time for the reservation
+    now = datetime.now()
+    current_date = now.strftime("%Y-%m-%d")
+    current_time = now.strftime("%H:%M:%S")
+
     code = generate_transaction_code()
     new_res = models.Reservation(
         first_name=first_name, 
         last_name=last_name, 
-        date=date, 
-        time=time, 
+        date=current_date, 
+        time=current_time, 
         email=email,
         phone_number=phone,
         package_type=package_type,
@@ -134,6 +140,10 @@ async def create_reservation(
     "transaction_code": code
     }
 
+@app.get("/admin/logout")
+async def logout():
+    # Sending a 401 forces the browser to forget the current credentials
+    raise HTTPException(status_code=401, detail="Logged out", headers={"WWW-Authenticate": "Basic"})
 
 # --- ADMIN ROUTES ---
 
