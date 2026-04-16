@@ -15,12 +15,14 @@ paypal.Buttons({
     // Dynamically set the amount based on the selected package
     createOrder: function(data, actions) {
         const select = document.getElementById('package_select');
-        const price  = select.options[select.selectedIndex].getAttribute('data-price');
+        const Rawprice  = select.options[select.selectedIndex].getAttribute('data-price');
+        const price = parseFloat(Rawprice).toFixed(2);
         const description = select.options[select.selectedIndex].text;
 
         return actions.order.create({
             purchase_units: [{
                 amount: {
+                    currency_code: "EUR",
                     value: price
                 },
                 description: description
