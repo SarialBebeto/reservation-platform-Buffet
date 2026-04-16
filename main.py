@@ -137,7 +137,7 @@ async def admin_dashboard(request: Request, db: Session = Depends(database.get_d
 
 
 @app.post("/admin/confirm/{res_id}")
-async def confirm_payment(res_id: int, db: Session = Depends(database.get_db), background_tasks: BackgrondTasks = None, user: str = Depends(check_admin)):
+async def confirm_payment(res_id: int, db: Session = Depends(database.get_db), background_tasks: BackgroundTasks = None, user: str = Depends(check_admin)):
     res = db.query(models.Reservation).filter(models.Reservation.id == res_id).first()
     if not res:
         raise HTTPException(status_code=404, detail="Reservation not found")
