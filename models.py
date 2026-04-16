@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from datetime import datetime
 from database import Base
 
 class Reservation(Base):
@@ -7,11 +8,14 @@ class Reservation(Base):
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String, index=True)
     last_name = Column(String, index=True)
-    date = Column(String, index=True)
-    time = Column(String, index=True)
+    date = Column(String)
+    time = Column(String)
     email = Column(String, index=True)
+    phone_number = Column(String)
     package_type = Column(String)
-    paid = Column(Boolean, default=False)
-    paypal_order_id = Column(String, unique=True, nullable=True)
 
-    
+    # Logic Fields
+    transaction_code = Column(String, unique=True, index=True)
+    status = Column(String, default="pending_payment")  
+    created_at = Column(DateTime, default=datetime.utcnow)
+

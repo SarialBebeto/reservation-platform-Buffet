@@ -12,6 +12,9 @@ from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import secrets
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+
 
 # 1. Setup and Configuration
 load_dotenv()
@@ -46,6 +49,20 @@ conf = ConnectionConfig(
     USE_CREDENTIALS=True
 )
 
+security = HTTPBasic()
+
+def generate_transaction_code():
+    # Generates a code like "BUF-A1B2C3"
+    return f"BUF-{secrets.token_hex(3).upper()}" 
+
+
+def check_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    # Simple hardcoded admin check
+    if credentials.username != "admin" or credentials.password != "secretpassword":
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+
+    return credentials.username
+
 
 # 2. Pydantic Models
 class PaymentPayload(BaseModel):
@@ -58,29 +75,6 @@ class PaymentPayload(BaseModel):
     paypal_order_id: str
 
 # 3. Helper Functions
-def get_paypal_access_token():
-    # Fetches a fresh access token from PayPal using client credentials
-    client_id = os.getenv("PAYPAL_CLIENT_ID", "").strip()
-    secret = os.getenv("PAYPAL_SECRET", "").strip()
-
-    if not client_id or not secret:
-        print("ERROR: PayPal credentials are not set in environment variables.")
-        return None
-    
-    url = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
-    headers = {"Accept": "application/json", "Accept-Language": "en_US"}
-    data = {"grant_type": "client_credentials"}
-
-    try: 
-        response = requests.post(url, headers=headers, data=data, auth=(client_id,secret))
-        if response.status_code == 200:
-            return response.json().get("access_token")
-        else:
-            print(f"PAYPAL AUTH ERROR: {response.status_code} - {response.text}")
-            return None
-    except Exception as e:
-        print(f"NETWORK ERROR: Could not reach PayPal: {e}")
-        return None
 
 async def send_confirmation_email(email_to: str, name: str, package: str):
     """Sends a confirmation email to the user after successful reservation."""
@@ -103,67 +97,59 @@ async def send_confirmation_email(email_to: str, name: str, package: str):
 def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-
-@app.post("/verify-payment")
-async def verify_payment( payload: PaymentPayload, db: Session = Depends(database.get_db), background_tasks: BackgroundTasks = None):
+@app.post("/reserve")
+async def create_reservation(
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    date: str = Form(...),
+    time: str = Form(...),
+    email: str = Form(...),
+    phone: str = Form(...),
+    db: Session = Depends(database.get_db)
+):
+    code = generate_transaction_code()
+    new_res = models.Reservation(
+        first_name=first_name, 
+        last_name=last_name, 
+        date=date, 
+        time=time, 
+        email=email,
+        phone_number=phone,
+        package_type=package_type,
+        transaction_code=code,
+        status="pending_payment"
+    )
+    db.add(new_res)
+    db.commit()
     
-    # 1. Get Access Token
-    token = get_paypal_access_token()
-    if not token:
-        raise HTTPException(status_code=500, detail="Could not authenticate with PayPal. Please try again later.")
+    return {"status": "success", 
+    "transaction_code": code
+    }
 
-    # 2. Verify order with Paypal
-    order_id = payload.paypal_order_id
-    url = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{order_id}"    
-    headers = {"Authorization": f"Bearer {token}"}
 
-    try:
-        res: requests.get(url, headers=headers).json()
-        print(f"DEBUG:Paypal verification response: {res}")
-    except Exception as e:
-        print(f"DEBUG ERROR: Connection to PayPal failed during verification: {e}")
-        raise HTTPException(status_code=503, detail="Payment verification service unavailable")
-  
-    # 3. Check Status and update DB
-    if res.get("status") == "COMPLETED":
-        # Create the reservation in DB
-        new_res = models.Reservation(
-            first_name=payload.first_name,
-            last_name=payload.last_name,
-            date=payload.date,
-            time=payload.time,
-            email=payload.email,
-            package_type=payload.package_type,
-            paid=True,
-            paypal_order_id=order_id
-        )
-        db.add(new_res)
-        db.commit()
+# --- ADMIN ROUTES ---
 
-        # 4. Trigger Email
-        background_tasks.add_task(
-            send_confirmation_email,
-            payload.email,
-            payload.first_name,
-            payload.package_type
-        )
+@app.get("/admin/dashboard")
+async def admin_dashboard(request: Request, db: Session = Depends(database.get_db),user: str = Depends(check_admin)):
+    # Fetch only pending reservations
+    reservations = db.query(models.Reservation).filter(models.Reservation.status == "pending_payment").all()
+    return templates.TemplateResponse("admin.html", {"request": request, "reservations": reservations})
 
-        return {"status": "success"}
-    else:
-        error_msg = res.get('status', 'UNKNOWN')
-        raise HTTPException(status_code=400, detail=f"PayPal verification failed. Status: {error_msg}")
 
-#  @app.post("/reserve")
-# async def create_reservation(
-#     first_name: str = Form(...),
-#     last_name: str = Form(...),
-#     date: str = Form(...),
-#     time: str = Form(...),
-#     email: str = Form(...),
-#     db: Session = Depends(database.get_db)
-# ):
-#     new_res = models.Reservation(first_name=first_name, last_name=last_name, date=date, time=time, email=email)
-#     db.add(new_res)
-#     db.commit()
-#     db.refresh(new_res)
-#     return {"status": "success", "reservation_id": new_res.id}
+@app.post("/admin/confirm/{res_id}")
+async def confirm_payment(res_id: int, db: Session = Depends(database.get_db), background_tasks: BackgrondTasks = None, user: str = Depends(check_admin)):
+    res = db.query(models.Reservation).filter(models.Reservation.id == res_id).first()
+    if not res:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+
+    res.status = "Success_payment"
+    db.commit()
+
+    # Trigger explicit email notification to user about manual confirmation
+    background_tasks.add_task(
+        send_confirmation_email,
+        res.email,
+        res.first_name,
+        res.package_type
+    )
+    return {"status": "success", "message": "Reservation Confirmed and Email Sent!"}

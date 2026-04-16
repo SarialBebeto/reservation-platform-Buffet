@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Pending Reservations</h1>
+        
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-200 text-gray-700">
+                    <th class="p-3 border-b">ID Code</th>
+                    <th class="p-3 border-b">Name</th>
+                    <th class="p-3 border-b">Package</th>
+                    <th class="p-3 border-b">Date/Time</th>
+                    <th class="p-3 border-b">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for res in reservations %}
+                <tr id="row-{{ res.id }}" class="border-b hover:bg-gray-50">
+                    <td class="p-3 font-mono text-indigo-600 font-bold">{{ res.transaction_code }}</td>
+                    <td class="p-3">{{ res.first_name }} {{ res.last_name }}<br><span class="text-xs text-gray-500">{{ res.email }} | {{ res.phone_number }}</span></td>
+                    <td class="p-3">{{ res.package_type }}</td>
+                    <td class="p-3">{{ res.date }} at {{ res.time }}</td>
+                    <td class="p-3">
+                        <button onclick="confirmPayment('{{ res.id }}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition text-sm font-bold">
+                            Payment Received
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="p-6 text-center text-gray-500">No pending reservations.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function confirmPayment(id) {
+            if(confirm("Are you sure you received the money for this reservation? This will send the confirmation email.")) {
+                fetch(`/admin/confirm/${id}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        alert("Confirmed! Email sent.");
+                        document.getElementById(`row-${id}`).remove(); // Remove row from table
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
