@@ -101,8 +101,8 @@ def read_root(request: Request):
 async def create_reservation(
     first_name: str = Form(...),
     last_name: str = Form(...),
-    date: str = Form(...),
-    time: str = Form(...),
+    date: str = Form("TBD"),
+    time: str = Form("TBD"),
     email: str = Form(...),
     phone: str = Form(...),
     package_type: str = Form(...),
@@ -165,8 +165,8 @@ async def confirm_payment(res_id: int, db: Session = Depends(database.get_db), b
 async def send_pending_email(email_to: str, name: str, code: str, package: str):
     pretty_package = package.replace("_", " ").title()
     
-    # Customize these with your actual details
-    paypal_email = "your-paypal@email.com"
+    # actual Payment details
+    paypal_email = "My-paypalaccount@email.com"
     iban = "DE00 0000 0000 0000 0000 00"
     bic = "ABCDEFGHXXX"
 

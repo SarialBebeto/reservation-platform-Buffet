@@ -58,7 +58,8 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                 </div>
             `;
         } else {
-            alert("Error: " + (data.detail || "Something went wrong"));
+            console.log(data);
+            alert("Error: " + JSON.stringify(data.detail));
             submitBtn.innerText = "Request Reservation";
             submitBtn.disabled = false;
         }
