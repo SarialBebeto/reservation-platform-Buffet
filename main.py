@@ -104,8 +104,8 @@ def read_root(request: Request):
 async def create_reservation(
     first_name: str = Form(...),
     last_name: str = Form(...),
-    # date: str = Form("TBD"),
-    # time: str = Form("TBD"),
+    date: str = Form(...),
+    time: str = Form(...),
     email: str = Form(...),
     phone: str = Form(...),
     package_type: str = Form(...),
