@@ -56,11 +56,14 @@ def generate_transaction_code():
     return f"BUF-{secrets.token_hex(3).upper()}" 
 
 
+# Get Credentials from enviroment variables 
+ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_user")
+ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "fallback_password_only_for_local")
+
 def check_admin(credentials: HTTPBasicCredentials = Depends(security)):
     # Simple hardcoded admin check
-    if credentials.username != "admin" or credentials.password != "secretpassword":
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-
+    if credentials.username != ADMIN_USER or credentials.password != ADMIN_PASS:
+        raise HTTPException(status_code=401, detail="Incorrect email or password", headers={"WWW-Authenticate": "Basic"})
     return credentials.username
 
 
