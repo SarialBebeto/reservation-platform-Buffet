@@ -29,14 +29,13 @@ paypal.Buttons({
     },
 
     // Backend Synchronization 
-
     onApprove: function(data, actions) {
         return actions.order.capture().then(function(details){
 
             // Generate automatic date and time
             const now = new Date();
-            const autoDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-            const autoTime = now.toTimeString().split(' ')[0].substring(0,5); // HH:MM
+            const autoDate = now.toISOString().split('T')[0];                  // YYYY-MM-DD
+            const autoTime = now.toTimeString().split(' ')[0].substring(0,5);  // HH:MM
 
 
             const payload = {
