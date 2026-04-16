@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buffet Reservation | Quick Reserve</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=AYZhcGR7jb8Lp3_wCyILNA8ZGaZC-vqNJQxxFIZAABqooCY8Qh7iZXbMNSNsz7APbhzdsd4wD8do0yIR&currency=EUR"></script>
     <style>
         
         .fade-in { animation: fadeIn 0.5s ease-in; }
@@ -21,7 +20,7 @@
 
         <div class="p-8">
             <div id="form-container">
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">Reserve Your Table</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Reserve now</h2>
                 
                 <form id="resForm" class="space-y-4">
                     <div>
@@ -40,6 +39,10 @@
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
                     </div>
                     <div>
+                        <label class="block text-xs font-medium text-gray-700 uppercase mb-1">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                    </div>
+                    <div>
                         <label class="block text-xs font-medium text-gray-700 uppercase mb-1">Select your Option</label>
                         <select id="package_select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
                             <option value="buffet_1" data-price="25.00">Single - 25.00€</option>
@@ -50,11 +53,11 @@
                             <option value="food_3" data-price="1.00">Sushis - 1.00€</option>
                         </select>
                     </div>
-                    
-                    <div id="paypal-button-container" class="mt-8"></div>
+                    <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-300">
+                        Request Reservation
+                    </button>
                 </form>
             </div>
-
                 <div id="success-message" class="hidden p-6 bg-green-50 border border-green-200 rounded-lg text-center mt-4">
                     <h3 class="text-green-800 font-bold text-lg">Reservation Confirmed! 🎉</h3>
                     <p class="text-green-700 text-sm">Check your email for your ticket.</p>
@@ -62,7 +65,7 @@
         </div>
     </div>
 
-    <script src="/static/paypal-logic.js"></script>
+    <script src="/static/main.js"></script>
 </body>
 </html>
 
