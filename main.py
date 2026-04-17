@@ -111,7 +111,7 @@ async def create_reservation(
     email: str = Form(...),
     phone: str = Form(...),
     package_type: str = Form(...),
-    background_tasks: BackgroundTasks,
+    background_tasks: BackgroundTasks = None,
     db: Session = Depends(database.get_db)
 ):
     
