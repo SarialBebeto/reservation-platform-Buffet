@@ -47,7 +47,8 @@ conf = ConnectionConfig(
     MAIL_SERVER="smtp.gmail.com",
     MAIL_STARTTLS=True,
     MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True
+    USE_CREDENTIALS=True,
+    VALIDATE_CERTS=True
 )
 
 security = HTTPBasic()
@@ -110,7 +111,7 @@ async def create_reservation(
     email: str = Form(...),
     phone: str = Form(...),
     package_type: str = Form(...),
-    background_tasks: BackgroundTasks = None,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(database.get_db)
 ):
     
@@ -137,9 +138,12 @@ async def create_reservation(
     # Trigger the PENDING email in the Background so the user doesn't wait
     background_tasks.add_task(send_pending_email, email, first_name, code, package_type)
     
-    return {"status": "success", 
-    "transaction_code": code
-    }
+    return {"status": "success", "transaction_code": code}
+
+@app.get("/test-email")
+async def test_mail():
+    await send_pending_email("your-own-email@example.com", "Tester", "TEST-123", "1x Sushi")
+    return {"message": "Email sent! Check your inbox."}
 
 @app.get("/admin/logout")
 async def logout():
