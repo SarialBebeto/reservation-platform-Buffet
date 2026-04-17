@@ -80,7 +80,20 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
             summary += `${input.name.replace('qty_', '')}: ${input.value},`;
         }
     });
-    formData.set('package_type', summary.slice(0, -2)); 
+    // formData.set('package_type', summary.slice(0, -2)); 
+    let summaryParts = [];
+
+    document.querySelectorAll('.item-qty').forEach(input => {
+        const qty = parseInt(input.value);
+        if (qty > 0) {
+            // Get the label or name
+            const itemName = input.name.replace('qty_', '').replace('_', ' ');
+            summaryParts.push(`${qty}x ${itemName}`);
+        }
+    });
+
+    const finalPackageString = summaryParts.join(', ');
+    formData.set('package_type', finalPackageString);
 
     // Send data to FastAPI app
     fetch('/reserve', {
