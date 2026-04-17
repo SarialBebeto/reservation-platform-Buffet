@@ -11,6 +11,17 @@
         <a href="/admin/logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition text-sm font-bold">
             Logout
         </a>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-indigo-500">
+                <p class="text-gray-500 text-xs uppercase font-bold">Total Pending</p>
+                <p class="text-2xl font-black text-gray-800">{{ reservations|length }}</p>
+            </div>
+            </div>
+
+        <div class="mb-4">
+            <input type="text" id="adminSearch" placeholder="Search by name or code..." 
+                class="w-full md:w-64 p-2 border rounded-lg text-sm focus:outline-indigo-500">
+        </div>
         
         <table class="w-full text-left border-collapse">
             <thead>
@@ -27,7 +38,16 @@
                 <tr id="row-{{ res.id }}" class="border-b hover:bg-gray-50">
                     <td class="p-3 font-mono text-indigo-600 font-bold">{{ res.transaction_code }}</td>
                     <td class="p-3">{{ res.first_name }} {{ res.last_name }}<br><span class="text-xs text-gray-500">{{ res.email }} | {{ res.phone_number }}</span></td>
-                    <td class="p-3">{{ res.package_type }}</td>
+                    <td class="p-3">
+                        <div class="text-sm">
+                            {% set items = res.package_type.split(',') %}
+                            {% for item in items %}
+                                <span class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full mr-1 mb-1 font-semibold uppercase">
+                                    {{ item }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </td>
                     <td class="p-3">{{ res.date }} at {{ res.time }}</td>
                     <td class="p-3">
                         <button onclick="confirmPayment('{{ res.id }}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition text-sm font-bold">
@@ -57,6 +77,16 @@
                 });
             }
         }
+        document.getElementById('adminSearch').addEventListener('keyup', function() {
+            let filter = this.value.toUpperCase();
+            let rows = document.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                let text = row.innerText.toUpperCase();
+                row.style.display = text.includes(filter) ? "" : "none";
+            });
+        });
     </script>
+
 </body>
 </html>
+
