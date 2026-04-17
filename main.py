@@ -42,7 +42,8 @@ app.add_middleware(
 conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
     MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
-    MAIL_FROM=os.getenv("MAIL_FROM"),
+    MAIL_FROM="Reservation Info <tsamo.sarial.1998@gmail.com>",
+    MAIL_FROM_NAME="Reservation Info",
     MAIL_PORT=587,
     MAIL_SERVER="smtp.gmail.com",
     MAIL_STARTTLS=True,
@@ -181,30 +182,62 @@ async def confirm_payment(res_id: int, db: Session = Depends(database.get_db), b
 # --- EMAIL FUNCTIONS ---
 
 async def send_pending_email(email_to: str, name: str, code: str, package: str):
-    # Ensure package is a string
-    display_package = str(package)
-    
-    # Use a clean HTML template
     html_content = f"""
-    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
-        <h2 style="color: #4f46e5;">Reservation Pending ⏳</h2>
-        <p>Hello <strong>{name}</strong>,</p>
-        <p>Your request for <strong>{display_package}</strong> is received.</p>
-        <div style="background: #f9fafb; padding: 15px; text-align: center; border-radius: 8px;">
-            <p style="font-size: 12px; margin-bottom: 5px;">PAYMENT REFERENCE</p>
-            <h1 style="letter-spacing: 2px; color: #111827; margin: 0;">{code}</h1>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            .container {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }}
+            .header {{ text-align: center; padding: 20px 0; border-bottom: 2px solid #f4f4f4; }}
+            .content {{ padding: 30px 0; line-height: 1.6; }}
+            .reference-box {{ background-color: #f8fafc; border: 1px dashed #cbd5e1; padding: 20px; text-align: center; border-radius: 12px; margin: 20px 0; }}
+            .code {{ font-size: 32px; font-weight: 800; color: #1e293b; letter-spacing: 4px; margin: 10px 0; }}
+            .footer {{ font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #f4f4f4; padding-top: 20px; }}
+            .btn {{ background-color: #4f46e5; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-top: 10px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h2 style="margin:0; color: #1e293b;">Reservation Receipt</h2>
+            </div>
+            <div class="content">
+                <p>Dear <strong>{name}</strong>,</p>
+                <p>We have received your reservation request for <strong>{package}</strong>. To finalize your booking, please complete the payment using the reference code below.</p>
+                
+                <div class="reference-box">
+                    <p style="margin:0; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: bold;">Your Reference Code</p>
+                    <div class="code">{code}</div>
+                    <p style="margin:0; font-size: 11px; color: #ef4444;">*Please include this code in your payment description</p>
+                </div>
+
+                <p><strong>Payment Options:</strong></p>
+                <ul>
+                    <li><strong>PayPal:</strong> Use the link on our website or send to tsamosarial@yahoo.fr</li>
+                    <li><strong>Bank Transfer:</strong> Check the confirmation page for IBAN details</li>
+                </ul>
+                
+                <center>
+                    <p style="font-size: 14px; color: #64748b;">Your spot will be held for 48 hours.</p>
+                </center>
+            </div>
+            <div class="footer">
+                <p>&copy; 2026 Reservation Info. All rights reserved.<br>
+                This is an automated message regarding your reservation request.</p>
+            </div>
         </div>
-        <p>Please send the payment via <strong>PayPal</strong> or <strong>Bank Transfer</strong> using this code in the description.</p>
-        <p>Best regards,<br>The Buffet Team</p>
-    </div>
+    </body>
+    </html>
     """
 
     message = MessageSchema(
-        subject=f"Payment Required: {code}",
+        subject=f"Action Required: Payment for {code}",
         recipients=[email_to],
         body=html_content,
-        subtype=MessageType.html 
+        subtype=MessageType.html
     )
     
     fm = FastMail(conf)
     await fm.send_message(message)
+
+    
