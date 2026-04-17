@@ -73,8 +73,16 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
             const paypalEmail = "tsamosarial@yahoo.fr";
             const transactionCode = data.transaction_code;
 
+            // Create a helper function for copying
+
+            function copyCode(code) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert("Transaction code copied to clipboard!");
+                });
+            }
+
             // Create a clickable PayPal link with the transaction code in the message
-            const paypalLink = `https://www.paypal.com/paypalme/${paypalEmail}?message=${encodeURIComponent(transactionCode)}`;
+            const paypalLink = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(paypalEmail)}&item_name=Reservation%20Reference&invoice=${encodeURIComponent(transactionCode)}`;
 
             container.innerHTML = `
                 <div class="text-center p-6 bg-green-100 rounded-lg border-2 border-indigo-100 shadow-sm fade-in">
@@ -93,6 +101,9 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                         <div class="text-3xl font-mono font-black text-indigo-800">
                             ${transactionCode}
                         </div>
+                        <button onclick="copyCode('${transactionCode}')" class="text-[10px] bg-indigo-200 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-300 transition">
+                            Copy Code
+                        </button>
                     </div>
                     <p class="text-[10px] text-indigo-500 mt-2 italic">Copy this code into your payment description</p>
                 </div>
@@ -103,12 +114,11 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                                 <span class="mr-2">🔵</span> Option 1: PayPal (Friends & Family)
                             </h4>
                             <p class="text-sm text-gray-600 ml-6 mt-1">
-                                Send to: <a href="${paypalLink}" target="_blank" class="text-indigo-600 font-bold underline hover:text-indigo-800 transition">
-                                    ${paypalEmail}
+                                <a href="${paypalLink}" target="_blank" class="inline-block bg-[#0070ba] text-white px-4 py-2 rounded-full font-bold text-xs hover:bg-[#005ea6] transition">
+                                    Pay with PayPal
                                 </a>
                                 <br>
-                                <span class="text-xs italic text-gray-500 font-medium">Click the email to pay via PayPal app</span>
-                            </p>
+                                <span class="text-[10px] text-gray-400 mt-1 block">Don't forget to paste your reference code!</span>
                         </div>
 
                         <div class="border-t pt-4">
@@ -125,16 +135,14 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                     </div>
 
                     <div class="mt-8 pt-4 border-t text-[11px] text-gray-400">
-                        Once confirmed, your official ticket will be sent to your email address automatically.
+                        Once payment confirmed, your official ticket will be sent to your email address automatically.
+                        A confirmation of these details has been sent to your email. 
                     </div>
 
                     <div class="mt-8 space-y-3">
                         <button onclick="window.location.reload()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-200 transition duration-300 border border-gray-300">
                             Make Another Reservation
                         </button>
-                        <p class="text-[10px] text-gray-400">
-                            A confirmation of these details has been sent to your email.
-                        </p>
                     </div>
                 </div>
             `;
