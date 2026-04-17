@@ -38,6 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
 });
 
+function calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('.item-qty').forEach(input => {
+        total += parseInt(input.value) * parseFloat(input.dataset.price);
+    });
+    document.getElementById('total-display').innerText = total.toFixed(2);
+    return total;
+}
+
+// Update total whenever quantity changes
+document.addEventListener('input', (e) => {
+    if (e.target.classList.contains('item-qty')) {
+        calculateTotal();
+    }
+});
 
 document.getElementById('resForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Stop page from reloading
@@ -59,6 +74,14 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
     const formData = new FormData(this);
     formData.set('phone', iti.getNumber()); // Update the phone field with the full number
 
+    let summary = "";
+    document.querySelectorAll('.item-qty').forEach(input => {
+        if (parseInt(input.value) > 0) {
+            summary += `${input.name.replace('qty_', '')}: ${input.value},`;
+        }
+    });
+    formData.set('package_type', summary.slice(0, -2)); 
+
     // Send data to FastAPI app
     fetch('/reserve', {
         method: 'POST',
@@ -72,6 +95,8 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
 
             const paypalEmail = "tsamosarial@yahoo.fr";
             const transactionCode = data.transaction_code;
+            const totalPrice = calculateTotal();
+            const currency = "EUR";
 
             // Create a helper function for copying
 
@@ -82,7 +107,7 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
             }
 
             // Create a clickable PayPal link with the transaction code in the message
-            const paypalLink = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(paypalEmail)}&item_name=Reservation%20Reference&invoice=${encodeURIComponent(transactionCode)}`;
+            const paypalLink = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(paypalEmail)}&amount=${totalPrice}&currency_code=${currency}&item_name=Reservation%20${transactionCode}&invoice=${transactionCode}`;
 
             container.innerHTML = `
                 <div class="text-center p-6 bg-green-100 rounded-lg border-2 border-indigo-100 shadow-sm fade-in">

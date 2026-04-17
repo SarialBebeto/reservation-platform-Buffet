@@ -52,16 +52,38 @@
                         <input type="hidden" name="phone" id="phone_full">
                     </div>
                     <input type="hidden" name="date" value="2026-04-15"> <input type="hidden" name="time" value="19:00">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 uppercase mb-1">Select your Option</label>
-                        <select id="package_select" name="package_type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
-                            <option value="Single_Pack" data-price="25.00">Single - 25.00€</option>
-                            <option value="Duo_Pack" data-price="45.00">Duo - 45.00€</option>
-                            <option value="Kids_Pack" data-price="10.00">Kids - 10.00€</option>
-                            <option value="Taro_Pack" data-price="20.00">Taro - 20.00€</option>
-                            <option value="Brochettes_Pack" data-price="2.00">Brochettes  - 2.00€</option>
-                            <option value="Sushis_Pack" data-price="1.00">Sushis - 1.00€</option>
-                        </select>
+                    <div class="space-y-3">
+                        <label class="block text-xs font-medium text-gray-700 uppercase mb-1">Select Items</label>
+                        
+                        <div class="flex items-center justify-between p-2 border rounded">
+                            <span>Buffet Single (25€)</span>
+                            <input type="number" name="qty_buffet_1" value="0" min="0" class="item-qty w-16 p-1 border rounded" data-price="25">
+                        </div>
+
+                        <div class="flex items-center justify-between p-2 border rounded">
+                            <span>Buffet Double (45€)</span>
+                            <input type="number" name="qty_buffet_2" value="0" min="0" class="item-qty w-16 p-1 border rounded" data-price="45">
+                        </div>
+
+                        <div class="flex items-center justify-between p-2 border rounded">
+                            <span>Buffet Kids (10€)</span>
+                            <input type="number" name="qty_buffet_3" value="0" min="0" class="item-qty w-16 p-1 border rounded" data-price="10">
+                        </div>
+
+                        <div class="flex items-center justify-between p-2 border rounded">
+                            <span>Taro (20€/pc)</span>
+                            <input type="number" name="qty_taro" value="0" min="0" class="item-qty w-16 p-1 border rounded" data-price="20">
+                        </div>
+
+                        <div class="flex items-center justify-between p-2 border rounded">
+                            <span>Brochettes (2€/pc)</span>
+                            <input type="number" name="qty_brochettes" value="0" min="0" class="item-qty w-16 p-1 border rounded" data-price="2">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-right font-bold text-indigo-600">
+                        Total: <span id="total-display">0.00</span>€
+
                     </div>
                     <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-300">
                         Request Reservation
@@ -79,3 +101,13 @@
 </body>
 </html>
 
+<!-- 
+
+                        <select id="package_select" name="package_type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                            <option value="Single_Pack" data-price="25.00">Single - 25.00€</option>
+                            <option value="Duo_Pack" data-price="45.00">Duo - 45.00€</option>
+                            <option value="Kids_Pack" data-price="10.00">Kids - 10.00€</option>
+                            <option value="Taro_Pack" data-price="20.00">Taro - 20.00€</option>
+                            <option value="Brochettes_Pack" data-price="2.00">Brochettes  - 2.00€</option>
+                            <option value="Sushis_Pack" data-price="1.00">Sushis - 1.00€</option>
+                        </select> -->
