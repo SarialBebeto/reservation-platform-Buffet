@@ -1,14 +1,63 @@
+let iti;
+document.addEventListener('DOMContentLoaded', () => {
+    const phoneInput = document.querySelector("#phone");
+    const phoneMsg = document.querySelector("#phone-msg");
+
+    iti = window.intlTelInput(phoneInput, {
+        initialCountry: "auto",
+        separateDialCode: true,
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    });
+
+    const updateCounter = () => {
+        if (phoneInput.value.trim()) {
+            if (iti.isValidNumber()) {
+                phoneMsg.textContent = "✅ Valid number";
+                phoneMsg.classList.replace("text-gray-500", "text-green-600");
+                phoneMsg.classList.remove("text-red-500");
+            } else {
+                const errorCode = iti.getValidationError();
+                // Library returns codes: 2 = too short, 3 = too long
+                if (errorCode === 2) {
+                    phoneMsg.innerHTML = "⚠️ Number too short";
+                } else if (errorCode === 3) {
+                    phoneMsg.innerHTML = "⚠️ Number too long";
+                } else {
+                    phoneMsg.innerHTML = "❌ Invalid format";
+                }
+                phoneMsg.classList.add("text-red-500");
+            }
+        } else {
+            phoneMsg.innerHTML = ""; 
+        }
+    };
+
+    phoneInput.addEventListener('keyup', updateCounter);
+    phoneInput.addEventListener('change', updateCounter);
+    phoneInput.addEventListener('countrychange', updateCounter);
+    
+});
+
+
 document.getElementById('resForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Stop page from reloading
 
     // Change button text so the user knows it's working
     const submitBtn = document.getElementById('submit-btn');
+    const fullNumber = iti.getNumber();
+
+    if (!iti.isValidNumber()) {
+        alert("Please enter a valid phone number before submitting.");
+        document.querySelector("#phone").focus();
+        return;
+    }
+
     submitBtn.innerText = "Processing...";
     submitBtn.disabled = true;
 
     // Collect form data
     const formData = new FormData(this);
-    // formData.append('package_type', document.getElementById('package_select').value);
+    formData.set('phone', iti.getNumber()); // Update the phone field with the full number
 
     // Send data to FastAPI app
     fetch('/reserve', {
