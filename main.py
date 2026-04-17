@@ -181,48 +181,30 @@ async def confirm_payment(res_id: int, db: Session = Depends(database.get_db), b
 # --- EMAIL FUNCTIONS ---
 
 async def send_pending_email(email_to: str, name: str, code: str, package: str):
-    pretty_package = package.replace("_", " ").title()
+    # Ensure package is a string
+    display_package = str(package)
     
-    # actual Payment details
-    paypal_email = "My-paypalaccount@email.com"
-    iban = "DE00 0000 0000 0000 0000 00"
-    bic = "ABCDEFGHXXX"
-
-    body = f"""
-    <html>
-        <body>
-            <h2>Reservation Pending: Action Required ⏳</h2>
-            <p>Hello {name},</p>
-            <p>Thank you for requesting a reservation for <strong>{pretty_package}</strong>.</p>
-            <p>To confirm your spot, please transfer the payment within 48 hours using the details below:</p>
-            
-            <div style="background-color: #f0f4ff; padding: 15px; border: 1px solid #d1d5db; border-radius: 8px;">
-                <p style="margin: 0; color: #4f46e5; font-weight: bold;">PAYMENT REFERENCE CODE:</p>
-                <h1 style="margin: 5px 0; color: #1e1b4b;">{code}</h1>
-                <p style="font-size: 12px; color: #6b7280;">(Please include this code in your transfer description)</p>
-            </div>
-
-            <h3>Option 1: PayPal (Friends & Family)</h3>
-            <p>Email: <strong>{paypal_email}</strong></p>
-
-            <h3>Option 2: Bank Transfer</h3>
-            <p>Account Holder: Your Name / Business Name<br>
-               IBAN: <strong>{iban}</strong><br>
-               BIC: <strong>{bic}</strong></p>
-
-            <p>Once we receive your payment, we will send your official ticket via email.</p>
-            <p>Best regards,<br>The Buffet Team</p>
-        </body>
-    </html>
+    # Use a clean HTML template
+    html_content = f"""
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
+        <h2 style="color: #4f46e5;">Reservation Pending ⏳</h2>
+        <p>Hello <strong>{name}</strong>,</p>
+        <p>Your request for <strong>{display_package}</strong> is received.</p>
+        <div style="background: #f9fafb; padding: 15px; text-align: center; border-radius: 8px;">
+            <p style="font-size: 12px; margin-bottom: 5px;">PAYMENT REFERENCE</p>
+            <h1 style="letter-spacing: 2px; color: #111827; margin: 0;">{code}</h1>
+        </div>
+        <p>Please send the payment via <strong>PayPal</strong> or <strong>Bank Transfer</strong> using this code in the description.</p>
+        <p>Best regards,<br>The Buffet Team</p>
+    </div>
     """
 
     message = MessageSchema(
-        subject=f"Action Required: Payment for Reservation {code}",
+        subject=f"Payment Required: {code}",
         recipients=[email_to],
-        body=body,
-        subtype=MessageType.html
+        body=html_content,
+        subtype=MessageType.html 
     )
     
     fm = FastMail(conf)
     await fm.send_message(message)
-
