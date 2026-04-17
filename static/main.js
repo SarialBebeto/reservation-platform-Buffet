@@ -69,12 +69,30 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
         if(data.status === 'success') {
             // Replace the form with a success message
             const container = document.getElementById('form-container');
+
+            const paypalEmail = "tsamosarial@yahoo.fr";
+            const transactionCode = data.transaction_code;
+
+            // Create a clickable PayPal link with the transaction code in the message
+            const paypalLink = `https://www.paypal.com/paypalme/${paypalEmail}?message=${encodeURIComponent(transactionCode)}`;
+
             container.innerHTML = `
-                <div class="text-center p-6 bg-green-50 rounded-lg border border-green-200">
+                <div class="text-center p-6 bg-green-100 rounded-lg border-2 border-indigo-100 shadow-sm fade-in">
+
+                    <div class="flex justify-center mb-4">
+                        <div class="bg-green-100 p-3 rounded-full">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+
                     <h3 class="text-2xl font-bold text-green-700 mb-2">Reservation Requested!</h3>
-                    <p class="text-gray-700 mb-4">Your Transaction Code is:</p>
-                    <div class="text-3xl font-mono font-bold text-indigo-600 mb-4 bg-white p-3 rounded border inline-block">
-                        ${data.transaction_code}
+                    <p class="text-gray-600 mb-6 text-sm">Please complete your payment within 48 hours.</p>
+
+                    <div class="bg-indigo-50 p-4 rounded-lg mb-6 border border-indigo-100">
+                        <p class="text-xs uppercase tracking-wider text-indigo-600 font-bold mb-1">Your Payment Reference</p>
+                        <div class="text-3xl font-mono font-black text-indigo-800">
+                            ${transactionCode}
+                        </div>
                     </div>
                     <p class="text-[10px] text-indigo-500 mt-2 italic">Copy this code into your payment description</p>
                 </div>
@@ -85,8 +103,11 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                                 <span class="mr-2">🔵</span> Option 1: PayPal (Friends & Family)
                             </h4>
                             <p class="text-sm text-gray-600 ml-6 mt-1">
-                                Send to: <strong class="text-indigo-600">My-paypalaccount@email.com</strong>
-                                with Message: <strong>  ${data.transaction_code}</strong>
+                                Send to: <a href="${paypalLink}" target="_blank" class="text-indigo-600 font-bold underline hover:text-indigo-800 transition">
+                                    ${paypalEmail}
+                                </a>
+                                <br>
+                                <span class="text-xs italic text-gray-500 font-medium">Click the email to pay via PayPal app</span>
                             </p>
                         </div>
 
@@ -98,13 +119,22 @@ document.getElementById('resForm').addEventListener('submit', function(e) {
                                 <p>Bank: <strong>Your Bank Name</strong></p>
                                 <p>IBAN: <strong>DE00 0000 0000 0000 0000 00</strong></p>
                                 <p>BIC: <strong>ABCDEFGHXXX</strong></p>
-                                <p>Verwendungszweck: <strong>  ${data.transaction_code}</strong></p>
+                                <p>Verwendungszweck: <strong>${transactionCode}</strong></p>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-8 pt-4 border-t text-[11px] text-gray-400">
                         Once confirmed, your official ticket will be sent to your email address automatically.
+                    </div>
+
+                    <div class="mt-8 space-y-3">
+                        <button onclick="window.location.reload()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-200 transition duration-300 border border-gray-300">
+                            Make Another Reservation
+                        </button>
+                        <p class="text-[10px] text-gray-400">
+                            A confirmation of these details has been sent to your email.
+                        </p>
                     </div>
                 </div>
             `;
