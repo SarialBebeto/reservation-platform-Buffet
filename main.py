@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 import secrets
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import datetime
 
 
 # 1. Setup and Configuration
@@ -104,8 +105,8 @@ def read_root(request: Request):
 async def create_reservation(
     first_name: str = Form(...),
     last_name: str = Form(...),
-    date: str = Form(...),
-    time: str = Form(...),
+    date: str = Form("TBD"),
+    time: str = Form("TBD"),
     email: str = Form(...),
     phone: str = Form(...),
     package_type: str = Form(...),
