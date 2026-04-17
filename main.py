@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 import secrets
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-import datetime
+from datetime import datetime
 
 
 # 1. Setup and Configuration
