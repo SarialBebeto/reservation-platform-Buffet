@@ -118,3 +118,8 @@ Public Layer: Nginx Ingress listens on ports 80/443.
 Private Layer: The PostgreSQL database is bound to the cluster-ip and is not accessible via the public IP of the server. Even if ufw were disabled, the database is only listening for internal Kubernetes traffic.
 
 Reverse Proxy: Nginx is configured to pass the X-Forwarded-For header so that FastAPI can log the real IP of the customers for security auditing.
+
+# Domain to access the app: 
+[text](https://reservation-buffet.ip-ddns.com/)
+
+admin Dashboard here: [text](https://reservation-buffet.ip-ddns.com/admin/dashboard)
