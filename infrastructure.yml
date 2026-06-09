@@ -1,0 +1,96 @@
+---
+- name: Setup Fresh Ubuntu Server for Buffet Reservation System
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: 'yes'
+
+    - name: Install required system packages
+      apt:
+        name:
+          - curl
+          - git
+          - ufw
+          - python3
+          - python3-venv
+          - python3-pip
+          - python3-dev
+          - gcc
+          - libpq-dev
+          - postgresql
+          - postgresql-contrib
+          - nginx
+        state: present
+
+    - name: Configure UFW - Default deny incoming
+      ufw:
+        default: deny
+        direction: incoming
+
+    - name: Configure UFW - Default allow outgoing
+      ufw:
+        default: allow
+        direction: outgoing
+
+    - name: Configure UFW - Allow SSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Configure UFW - Allow HTTP
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+
+    - name: Configure UFW - Allow HTTPS
+      ufw:
+        rule: allow
+        port: '443'
+        proto: tcp
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Check if k3s is installed
+      command: which k3s
+      register: k3s_installed
+      ignore_errors: true
+
+    - name: Install k3s
+      shell: curl -sfL https://get.k3s.io | sh -
+      when: k3s_installed.rc != 0
+
+    - name: Ensure k3s is running and enabled
+      systemd:
+        name: k3s
+        state: started
+        enabled: yes
+
+    - name: Check if Helm is installed
+      command: which helm
+      register: helm_installed
+      ignore_errors: true
+
+    - name: Install Helm
+      shell: curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && bash get_helm.sh
+      when: helm_installed.rc != 0
+
+    - name: Wait for k3s to be ready
+      command: k3s kubectl get node
+      register: k3s_node
+      until: k3s_node.rc == 0
+      retries: 12
+      delay: 5
+
+    - name: Deploy Buffet App using Helm
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      command: helm upgrade --install buffet-release ./buffet-app --namespace production --create-namespace
+      args:
+        chdir: "{{ playbook_dir }}"

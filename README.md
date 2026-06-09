@@ -16,14 +16,43 @@ A professional, full-stack reservation management system built with **FastAPI**,
 - **Backend:** Python (FastAPI)
 - **Database:** PostgreSQL (SQLAlchemy ORM)
 - **Frontend:** HTML5, Tailwind CSS, JavaScript (Vanilla)
-- **Deployment:** Docker, Kubernetes (MicroK8s)
+- **Deployment:** Docker, Kubernetes (k3s)
 - **Communication:** FastAPI-Mail (SMTP/Gmail)
 
-## Prerequisites
+## Prerequisites & System Requirements (Ubuntu)
 
-- Python 3.10+
-- PostgreSQL Database
-- Gmail Account (with App Password enabled)
+To set up this application on a fresh Ubuntu server (or automate via Ansible), install the following system dependencies:
+
+### 1. System Packages
+Run the following to install Python, the required build tools for PostgreSQL (`psycopg2`), and a local database/web server:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+    python3 \
+    python3-venv \
+    python3-pip \
+    python3-dev \
+    gcc \
+    libpq-dev \
+    postgresql \
+    postgresql-contrib \
+    nginx
+```
+*(Note: `gcc` and `libpq-dev` are strictly required to compile the `psycopg2` driver).* 
+
+### 2. Deployment Tools 
+- **Docker** (to build from the provided `Dockerfile`)
+- **k3s** (for lightweight Kubernetes deployment via `deployment.yaml`)
+
+### 3. External Services
+- Gmail Account (with App Password enabled for SMTP email delivery)
+
+### 4. Automated Infrastructure Setup (Ansible)
+Alternatively, if you want to automatically set up the fresh Ubuntu server with all dependencies, firewall rules, and `k3s`, use the provided Ansible playbook:
+```bash
+ansible-playbook -K infrastructure.yml
+```
 
 ## Environment Variables
 
@@ -61,7 +90,7 @@ The project includes a deployment.yaml for production-grade hosting.
 
 2. **Deploy**
  kubectl apply -f deployment.yaml 
- or use: microk8s helm3 upgrade --install app-release ./buffet-app --namespace production
+ or use: helm upgrade --install app-release ./buffet-app --namespace production
 
 📂 Project Structure
 
@@ -78,7 +107,7 @@ The project includes a deployment.yaml for production-grade hosting.
 
 
 ## System Architecture & Security
-The application is deployed on a Microk8s cluster with a layered security approach: 
+The application is deployed on a k3s cluster with a layered security approach: 
 
 1. *Ingress(Nginx)*: Acts as the entry point , handling SSL termination (HTTPS) and routing traffic to the FastAPI service.
 
