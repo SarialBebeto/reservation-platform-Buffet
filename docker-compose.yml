@@ -1,0 +1,89 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: buffet_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-buffet_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-buffet_secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-buffet_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-buffet_user} -d $${POSTGRES_DB:-buffet_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - buffet_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: buffet_app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-buffet_user}:${POSTGRES_PASSWORD:-buffet_secure_password}@db:5432/${POSTGRES_DB:-buffet_db}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - buffet_net
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: buffet_prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - buffet_net
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: buffet_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - buffet_net
+
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: buffet_jenkins
+    restart: always
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - buffet_net
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+  jenkins_data:
+
+networks:
+  buffet_net:
+    driver: bridge

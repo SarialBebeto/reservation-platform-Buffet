@@ -17,6 +17,8 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from datetime import datetime
 
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 # 1. Setup and Configuration
 load_dotenv()
 
@@ -24,6 +26,7 @@ load_dotenv()
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
+Instrumentator().instrument(app).expose(app)
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")

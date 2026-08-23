@@ -83,14 +83,44 @@ The application uses SQLAlchemy to automatically create tables. Ensure the DATAB
  Access the app at http://localhost:8000
 
 ## Deployment
-The project includes a deployment.yaml for production-grade hosting.
 
-1. **Apply Secrets**
- kubectl create secret generic app-secrets --from-literal=...
+### Option A: Docker Compose Deployment (Recommended for Single Server)
 
-2. **Deploy**
- kubectl apply -f deployment.yaml 
- or use: helm upgrade --install app-release ./buffet-app --namespace production
+1. **Configure Environment Variables**
+   Copy `.env.example` to `.env` and fill in your passwords and SMTP details:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Run with Docker Compose**
+   ```bash
+   # Build images and start containers in detached mode
+   docker compose up -d --build
+
+   # Check container status
+   docker compose ps
+
+   # View application logs
+   docker compose logs -f web
+   ```
+   The application will be accessible at `http://localhost:8000`.
+
+3. **Installing Docker on Rocky Linux 10 / RHEL** (if not already installed):
+   ```bash
+   sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+   sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+   sudo systemctl enable --now docker
+   sudo usermod -aG docker $USER
+   ```
+
+### Option B: Kubernetes (K3s / Helm) Deployment
+The project includes a `buffet-app` Helm chart for Kubernetes deployment:
+
+1. **Apply Secrets & Deploy**
+   ```bash
+   helm upgrade --install app-release ./buffet-app --namespace production --create-namespace
+   ```
+
 
 📂 Project Structure
 
